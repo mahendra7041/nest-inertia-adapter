@@ -11,6 +11,7 @@ import {
   OptionalProp,
 } from "./props.js";
 import { encode } from "html-entities";
+import { TemplateEngine } from "./template-engine.js";
 
 type ResponseConfig = {
   component: string;
@@ -34,14 +35,17 @@ export class Response {
   }
 
   async render(props: PageObject) {
-    let template = await readFile("index.html", "utf8");
+    const template = await readFile("index.html", "utf8");
     const dataPage = encode(JSON.stringify(props));
-    return template
-      .replace(`<!-- @inertiaHead -->`, () => "")
-      .replace(
-        `<!-- @inertia -->`,
-        () => `<div id="root" data-page="${dataPage}"></div>`
-      );
+    const html = TemplateEngine.render(template, {
+      component: props.component,
+      props: dataPage,
+      inertiaHead: "",
+      rootElementId: "root",
+      assetUrl: (path: string) => `http://[::1]:5173/${path}`,
+    });
+
+    return html;
   }
 
   async toResponse(request: any, response: any) {
