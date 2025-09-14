@@ -1,7 +1,6 @@
 import type { Request, Response as ExpressResponse } from "express";
 import { PageObject, PageProps } from "./types.js";
 import { readFile } from "fs/promises";
-import { Vite } from "./vite.js";
 import { InertiaHeaders } from "./headers.js";
 import {
   AlwaysProp,
@@ -37,10 +36,6 @@ export class Response {
   async render(props: PageObject) {
     let template = await readFile("index.html", "utf8");
     const dataPage = encode(JSON.stringify(props));
-    template = await Vite.viteDevServer.transformIndexHtml(
-      this.request.url,
-      template
-    );
     return template
       .replace(`<!-- @inertiaHead -->`, () => "")
       .replace(
