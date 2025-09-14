@@ -1,0 +1,35 @@
+{
+  "name": "nest-inertia-adapter",
+  "description": "Inertiajs adapter for nestjs",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "author": "Mahendra Chavda",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.3",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@tuyau/utils": "^0.0.9",
+    "html-entities": "^2.6.0",
+    "locate-path": "^7.2.0",
+    "nestjs-cls": "^6.0.1",
+    "uuid": "^13.0.0",
+    "vite": "^7.1.5"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/core": "^11.1.6"
+  }
+}
