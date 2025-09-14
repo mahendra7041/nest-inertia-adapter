@@ -9,8 +9,6 @@ import { defineConfig, INERTIA_CONFIG } from "./define_config.js";
 import { APP_INTERCEPTOR } from "@nestjs/core";
 import { Interceptor } from "./interceptor.js";
 import { ResponseFactory } from "./response-factory.js";
-import { ClsMiddleware } from "./cls.middleware.js";
-import { ClsService } from "./cls.service.js";
 import { Inertia } from "./inertia.js";
 import ViteMiddleware from "./vite_middleware.js";
 
@@ -28,7 +26,6 @@ export class InertiaModule implements NestModule {
           provide: APP_INTERCEPTOR,
           useClass: Interceptor,
         },
-        ClsService,
         ResponseFactory,
         Inertia,
       ],
@@ -37,6 +34,6 @@ export class InertiaModule implements NestModule {
   }
 
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ClsMiddleware, ViteMiddleware).forRoutes("*");
+    consumer.apply(ViteMiddleware).forRoutes("*");
   }
 }

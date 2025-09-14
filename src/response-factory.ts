@@ -3,33 +3,28 @@ import { AlwaysProp, DeferProp, MergeProp, OptionalProp } from "./props.js";
 import { INERTIA_CONFIG } from "./define_config.js";
 import type { MaybePromise, ResolvedConfig } from "./types.js";
 import { Response } from "./response.js";
-import { ClsService } from "./cls.service.js";
-
 @Injectable()
 export class ResponseFactory {
   private shouldClearHistory: boolean;
   private shouldEncryptHistory: boolean;
+  private sharedData: Record<string, any>;
 
-  constructor(
-    @Inject(INERTIA_CONFIG) private readonly config: ResolvedConfig,
-    private readonly clsService: ClsService
-  ) {
+  constructor(@Inject(INERTIA_CONFIG) private readonly config: ResolvedConfig) {
     this.shouldClearHistory = false;
     this.shouldEncryptHistory = this.config.history.encrypt;
+    this.sharedData = this.config.sharedData;
   }
 
   share(key: string, value: any) {
-    const sharedProps = this.getShared();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.clsService.set("sharedProps", { ...sharedProps, [key]: value });
+    this.sharedData = { ...this.sharedData, [key]: value };
   }
 
   getShared() {
-    return this.clsService.get<Record<string, any>>("sharedProps");
+    return this.sharedData;
   }
 
   flushShared(): void {
-    this.clsService.set("sharedProps", {});
+    this.sharedData = {};
   }
 
   clearHistory() {
@@ -61,9 +56,12 @@ export class ResponseFactory {
   }
 
   render(component: string, props: Record<string, any> = {}) {
+    const sharedData = { ...this.sharedData, ...props };
+    this.flushShared();
+
     return new Response({
       component,
-      props: { ...this.getShared(), ...props },
+      props: sharedData,
       rootView: this.config.rootView,
       version: this.config.assetsVersion,
       clearHistory: this.shouldClearHistory,
