@@ -41,7 +41,8 @@ TemplateEngine.directive("viteReactRefresh", (ctx) =>
 
 TemplateEngine.directive(
   "vite",
-  (ctx) => `<script type="module" src="${ctx.assetUrl("@vite")}"></script>`
+  (ctx) =>
+    `<script type="module" src="${ctx.assetUrl("@vite/client")}"></script>`
 );
 
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
