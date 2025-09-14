@@ -1,17 +1,17 @@
-export type Context = Record<string, any>;
-export type DirectiveHandler = (ctx: Context) => string;
+type Context = Record<string, any>;
+type DirectiveHandler = (ctx: Context) => string;
 
 export class TemplateEngine {
   private static directives: Record<string, DirectiveHandler> = {};
 
-  static directive(name: string, handler: DirectiveHandler): void {
+  static directive(name: string, handler: DirectiveHandler) {
     this.directives[name] = handler;
   }
 
   static render(template: string, ctx: Context = {}): string {
-    template = template.replace(/{{\s*([^{}]+?)\s*}}/g, (_, expr) => {
+    template = template.replace(/{{\s*([\s\S]+?)\s*}}/g, (_, expr) => {
       const val = TemplateEngine.evalInCtx(expr, ctx);
-      return TemplateEngine.escape(val);
+      return val != null ? String(val) : "";
     });
 
     template = template.replace(/@(\w+)/g, (_, name) => {
@@ -22,39 +22,31 @@ export class TemplateEngine {
     return template;
   }
 
-  private static escape(val: unknown): string {
-    return String(val)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  private static evalInCtx(expr: string, ctx: Context): any {
+  private static evalInCtx(expr: string, ctx: Context) {
     return new Function("ctx", `with (ctx) { return ${expr}; }`)(ctx);
   }
 }
 
-TemplateEngine.directive("viteReactRefresh", function () {
-  return [
+TemplateEngine.directive("viteReactRefresh", (ctx) =>
+  [
     `<script type="module">`,
-    `import RefreshRuntime from '{{ assetsUrl("@react-refresh") }}'`,
+    `import RefreshRuntime from '${ctx.assetUrl("@react-refresh")}'`,
     `RefreshRuntime.injectIntoGlobalHook(window)`,
     `window.$RefreshReg$ = () => {}`,
     `window.$RefreshSig$ = () => (type) => type`,
     `window.__vite_plugin_react_preamble_installed__ = true`,
     `</script>`,
-  ].join("\n");
-});
+  ].join("\n")
+);
 
 TemplateEngine.directive(
   "vite",
-  () => `<script type="module" src="{{ assetsUrl("@vite") }}"></script>`
+  (ctx) => `<script type="module" src="${ctx.assetUrl("@vite")}"></script>`
 );
 
-TemplateEngine.directive("inertiaHead", () => `{{ inertiaHead }}`);
+TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
+
 TemplateEngine.directive(
   "inertia",
-  () => `<div id="{{ rootElementId }}" data-page={{ props }}></div>`
+  (ctx) => `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
 );
