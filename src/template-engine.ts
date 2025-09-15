@@ -39,7 +39,7 @@ export class TemplateEngine {
     const isProd = process.env.NODE_ENV === "production";
 
     const ctx = {
-      props: encode(JSON.stringify(page.props)),
+      props: encode(JSON.stringify(page)),
       component: page.component,
       ssr: !!this.serverRenderer,
       rootElementId: "app",
