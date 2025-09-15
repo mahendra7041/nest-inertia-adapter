@@ -30,7 +30,7 @@ export class TemplateEngine {
 TemplateEngine.directive("viteReactRefresh", (ctx) =>
   [
     `<script type="module">`,
-    `import RefreshRuntime from '${ctx.assetUrl("@react-refresh")}'`,
+    `import RefreshRuntime from '${ctx.vite("@react-refresh")}'`,
     `RefreshRuntime.injectIntoGlobalHook(window)`,
     `window.$RefreshReg$ = () => {}`,
     `window.$RefreshSig$ = () => (type) => type`,
@@ -41,8 +41,7 @@ TemplateEngine.directive("viteReactRefresh", (ctx) =>
 
 TemplateEngine.directive(
   "vite",
-  (ctx) =>
-    `<script type="module" src="${ctx.assetUrl("@vite/client")}"></script>`
+  (ctx) => `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
 );
 
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);

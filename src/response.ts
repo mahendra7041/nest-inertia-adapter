@@ -42,7 +42,7 @@ export class Response {
       props: dataPage,
       inertiaHead: "",
       rootElementId: "root",
-      assetUrl: (path: string) => `http://[::1]:5173/${path}`,
+      vite: (path: string) => `/${path}`,
     });
 
     return html;
