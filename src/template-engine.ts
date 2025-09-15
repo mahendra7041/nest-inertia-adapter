@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import { ServerRenderer } from "./server_renderer.js";
 import { PageObject } from "./types.js";
 import { Vite } from "./vite.js";
+import { encode } from "html-entities";
 
 type Context = Record<string, any>;
 type DirectiveHandler = (ctx: Context) => string;
@@ -26,19 +27,20 @@ export class TemplateEngine {
 
   constructor(private readonly serverRenderer?: ServerRenderer) {}
 
-  async render(view: string, props: PageObject): Promise<string> {
+  async render(view: string, page: PageObject): Promise<string> {
     let template = await readFile(view, "utf8");
 
     if (this.serverRenderer) {
-      const ssr = await this.serverRenderer.render(props);
-      props.ssrBody = ssr.body;
-      props.ssrHead = ssr.head.join("\n");
+      const ssr = await this.serverRenderer.render(page);
+      page.ssrBody = ssr.body;
+      page.ssrHead = ssr.head.join("\n");
     }
 
     const isProd = process.env.NODE_ENV === "production";
 
     const ctx = {
-      ...props,
+      props: encode(JSON.stringify(page.props)),
+      component: page.component,
       ssr: !!this.serverRenderer,
       rootElementId: "app",
       isProd,
