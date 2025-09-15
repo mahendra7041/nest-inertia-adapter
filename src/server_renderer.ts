@@ -12,7 +12,7 @@ import type { ServerModuleRunnerOptions } from "vite";
 export class ServerRenderer {
   static runtime: ModuleRunner;
 
-  constructor(protected config: ResolvedConfig, protected vite?: Vite) {}
+  constructor(protected config: ResolvedConfig) {}
 
   async render(pageObject: PageObject) {
     let render: { default: RenderInertiaSsrApp };

@@ -10,8 +10,8 @@ import {
   MergeProp,
   OptionalProp,
 } from "./props.js";
-import { encode } from "html-entities";
-import { TemplateEngine, vite } from "./template-engine.js";
+import { TemplateEngine } from "./template-engine.js";
+import { ServerRenderer } from "./server_renderer.js";
 
 type ResponseConfig = {
   component: string;
@@ -27,27 +27,27 @@ type ResponseConfig = {
 export class Response {
   protected request: Request;
   protected response: ExpressResponse;
-  constructor(private readonly config: ResponseConfig) {}
+  protected templateEngine: TemplateEngine;
+  constructor(
+    private readonly config: ResponseConfig,
+    private readonly serverRenderer?: ServerRenderer
+  ) {
+    this.templateEngine = new TemplateEngine(this.serverRenderer);
+  }
 
   with(key: string, value: any) {
     this.config.props = { ...this.config.props, [key]: value };
     return this;
   }
 
-  async render(props: PageObject) {
-    const template = await readFile("index.html", "utf8");
-    const dataPage = encode(JSON.stringify(props));
-    const isProd = process.env.NODE_ENV == "production";
-    const html = TemplateEngine.render(template, {
-      component: props.component,
-      props: dataPage,
-      inertiaHead: "",
-      rootElementId: "app",
-      isProd,
-      vite: (path: string) => vite(path, isProd),
-    });
+  get rootView() {
+    return typeof this.config.rootView == "function"
+      ? this.config.rootView({ request: this.request, response: this.response })
+      : this.config.rootView;
+  }
 
-    return html;
+  async render(props: PageObject) {
+    return await this.templateEngine.render(this.rootView, props);
   }
 
   async toResponse(request: any, response: any) {

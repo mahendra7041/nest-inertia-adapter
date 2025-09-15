@@ -3,16 +3,22 @@ import { AlwaysProp, DeferProp, MergeProp, OptionalProp } from "./props.js";
 import { INERTIA_CONFIG } from "./define_config.js";
 import type { MaybePromise, ResolvedConfig } from "./types.js";
 import { Response } from "./response.js";
+import { ServerRenderer } from "./server_renderer.js";
 @Injectable()
 export class ResponseFactory {
   private shouldClearHistory: boolean;
   private shouldEncryptHistory: boolean;
   private sharedData: Record<string, any>;
+  serverRenderer?: ServerRenderer;
 
   constructor(@Inject(INERTIA_CONFIG) private readonly config: ResolvedConfig) {
     this.shouldClearHistory = false;
     this.shouldEncryptHistory = this.config.history.encrypt;
     this.sharedData = this.config.sharedData;
+
+    if (this.config.ssr.enabled) {
+      this.serverRenderer = new ServerRenderer(this.config);
+    }
   }
 
   share(key: string, value: any) {
@@ -59,14 +65,17 @@ export class ResponseFactory {
     const sharedData = { ...this.sharedData, ...props };
     this.flushShared();
 
-    return new Response({
-      component,
-      props: sharedData,
-      rootView: this.config.rootView,
-      version: this.config.assetsVersion,
-      clearHistory: this.shouldClearHistory,
-      encryptHistory: this.shouldEncryptHistory,
-    });
+    return new Response(
+      {
+        component,
+        props: sharedData,
+        rootView: this.config.rootView,
+        version: this.config.assetsVersion,
+        clearHistory: this.shouldClearHistory,
+        encryptHistory: this.shouldEncryptHistory,
+      },
+      this.serverRenderer
+    );
   }
 
   location(url: string) {

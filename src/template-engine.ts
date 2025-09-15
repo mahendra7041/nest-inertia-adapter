@@ -1,7 +1,21 @@
+import { readFile } from "fs/promises";
+import { ServerRenderer } from "./server_renderer.js";
+import { PageObject } from "./types.js";
 import { Vite } from "./vite.js";
 
 type Context = Record<string, any>;
 type DirectiveHandler = (ctx: Context) => string;
+
+export function vite(path: string, isProd: boolean) {
+  if (!isProd) {
+    return path;
+  }
+  const manifest = Vite.getManifest();
+  const assetPath = manifest[path];
+  if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
+
+  return assetPath.file;
+}
 
 export class TemplateEngine {
   private static directives: Record<string, DirectiveHandler> = {};
@@ -10,14 +24,34 @@ export class TemplateEngine {
     this.directives[name] = handler;
   }
 
-  static render(template: string, ctx: Context = {}): string {
+  constructor(private readonly serverRenderer?: ServerRenderer) {}
+
+  async render(view: string, props: PageObject): Promise<string> {
+    let template = await readFile(view, "utf8");
+
+    if (this.serverRenderer) {
+      const ssr = await this.serverRenderer.render(props);
+      props.ssrBody = ssr.body;
+      props.ssrHead = ssr.head.join("\n");
+    }
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    const ctx = {
+      ...props,
+      ssr: !!this.serverRenderer,
+      rootElementId: "app",
+      isProd,
+      vite: (path: string) => vite(path, isProd),
+    };
+
     template = template.replace(/{{\s*([\s\S]+?)\s*}}/g, (_, expr) => {
       const val = TemplateEngine.evalInCtx(expr, ctx);
       return val != null ? String(val) : "";
     });
 
     template = template.replace(/@(\w+)/g, (_, name) => {
-      const fn = this.directives[name];
+      const fn = TemplateEngine.directives[name];
       return fn ? fn(ctx) : "";
     });
 
@@ -48,21 +82,10 @@ TemplateEngine.directive("vite", (ctx) =>
     : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
 );
 
-TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
+TemplateEngine.directive("inertiaHead", (ctx) => ctx.ssrHead || "");
 
 TemplateEngine.directive("inertia", (ctx) =>
-  ctx.isProd
-    ? ctx.inertia
+  ctx.ssr
+    ? ctx.ssrBody
     : `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
 );
-
-export function vite(path: string, isProd: boolean) {
-  if (!isProd) {
-    return path;
-  }
-  const manifest = Vite.getManifest();
-  const assetPath = manifest[path];
-  if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
-
-  return assetPath.file;
-}
