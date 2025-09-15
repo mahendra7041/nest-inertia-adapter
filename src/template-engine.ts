@@ -54,6 +54,8 @@ export class TemplateEngine {
 
     const ctx = {
       props: encode(JSON.stringify(page)),
+      inertia: page.ssrBody,
+      inertiaHead: page.ssrHead,
       component: page.component,
       ssr: !!this.serverRenderer,
       rootElementId: "app",
@@ -97,11 +99,11 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
   ].join("\n");
 });
 
-TemplateEngine.directive("inertiaHead", (ctx) => ctx.ssrHead || "");
+TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead || "");
 
 TemplateEngine.directive("inertia", (ctx) =>
   ctx.ssr
-    ? ctx.ssrBody
+    ? ctx.inertia
     : `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
 );
 
