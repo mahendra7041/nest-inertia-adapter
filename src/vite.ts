@@ -18,7 +18,7 @@ export class Vite {
       return this.manifest;
     }
     this.manifest = JSON.parse(
-      readFileSync("dist/.vite/manifest.json", "utf-8")
+      readFileSync("build/.vite/manifest.json", "utf-8")
     );
     return this.manifest;
   }
