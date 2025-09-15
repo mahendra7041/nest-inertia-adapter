@@ -88,7 +88,7 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
   if (ctx.isProd) return "";
   return [
     `<script type="module">`,
-    `import RefreshRuntime from '${ctx.vite("/@react-refresh")}'`,
+    `import RefreshRuntime from '${ctx.vite("@react-refresh")}'`,
     `RefreshRuntime.injectIntoGlobalHook(window)`,
     `window.$RefreshReg$ = () => {}`,
     `window.$RefreshSig$ = () => (type) => type`,
