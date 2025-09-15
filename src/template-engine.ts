@@ -45,7 +45,7 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
 TemplateEngine.directive("vite", (ctx) =>
   ctx.isProd
     ? ""
-    : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
+    : `<script type="module" src="${ctx.vite("/@vite/client")}"></script>`
 );
 
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
@@ -64,5 +64,5 @@ export function vite(path: string, isProd: boolean) {
   const assetPath = manifest[path];
   if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
 
-  return `/${assetPath}`;
+  return `${assetPath}`;
 }
