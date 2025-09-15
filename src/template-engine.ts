@@ -33,7 +33,7 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
   if (ctx.isProd) return "";
   return [
     `<script type="module">`,
-    `import RefreshRuntime from '${ctx.vite("@react-refresh")}'`,
+    `import RefreshRuntime from '${ctx.vite("/@react-refresh")}'`,
     `RefreshRuntime.injectIntoGlobalHook(window)`,
     `window.$RefreshReg$ = () => {}`,
     `window.$RefreshSig$ = () => (type) => type`,
@@ -45,7 +45,7 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
 TemplateEngine.directive("vite", (ctx) =>
   ctx.isProd
     ? ""
-    : `<script type="module" src="${ctx.vite("/@vite/client")}"></script>`
+    : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
 );
 
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
