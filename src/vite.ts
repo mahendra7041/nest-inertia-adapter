@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import type { ViteDevServer } from "vite";
 
 export class Vite {
@@ -13,12 +13,12 @@ export class Vite {
     });
   }
 
-  static async getManifest() {
+  static getManifest() {
     if (this.manifest) {
       return this.manifest;
     }
     this.manifest = JSON.parse(
-      await readFile("dist/.vite/manifest.json", "utf-8")
+      readFileSync("dist/.vite/manifest.json", "utf-8")
     );
     return this.manifest;
   }

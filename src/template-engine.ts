@@ -57,11 +57,11 @@ TemplateEngine.directive("inertia", (ctx) =>
     : `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
 );
 
-export async function vite(path: string, isProd: boolean) {
+export function vite(path: string, isProd: boolean) {
   if (!isProd) {
     return path;
   }
-  const manifest = await Vite.getManifest();
+  const manifest = Vite.getManifest();
   const assetPath = manifest[path];
   if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
 
