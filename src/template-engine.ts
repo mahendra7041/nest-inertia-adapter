@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises";
+import { Vite } from "./vite.js";
+
 type Context = Record<string, any>;
 type DirectiveHandler = (ctx: Context) => string;
 
@@ -27,8 +30,9 @@ export class TemplateEngine {
   }
 }
 
-TemplateEngine.directive("viteReactRefresh", (ctx) =>
-  [
+TemplateEngine.directive("viteReactRefresh", (ctx) => {
+  if (ctx.isProd) return "";
+  return [
     `<script type="module">`,
     `import RefreshRuntime from '${ctx.vite("@react-refresh")}'`,
     `RefreshRuntime.injectIntoGlobalHook(window)`,
@@ -36,17 +40,30 @@ TemplateEngine.directive("viteReactRefresh", (ctx) =>
     `window.$RefreshSig$ = () => (type) => type`,
     `window.__vite_plugin_react_preamble_installed__ = true`,
     `</script>`,
-  ].join("\n")
-);
+  ].join("\n");
+});
 
-TemplateEngine.directive(
-  "vite",
-  (ctx) => `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
+TemplateEngine.directive("vite", (ctx) =>
+  ctx.isProd
+    ? ""
+    : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
 );
 
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.inertiaHead);
 
-TemplateEngine.directive(
-  "inertia",
-  (ctx) => `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
+TemplateEngine.directive("inertia", (ctx) =>
+  ctx.isProd
+    ? ctx.inertia
+    : `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
 );
+
+export async function vite(path: string, isProd: boolean) {
+  if (!isProd) {
+    return path;
+  }
+  const manifest = await Vite.getManifest();
+  const assetPath = manifest[path];
+  if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
+
+  return assetPath;
+}

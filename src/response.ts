@@ -11,7 +11,7 @@ import {
   OptionalProp,
 } from "./props.js";
 import { encode } from "html-entities";
-import { TemplateEngine } from "./template-engine.js";
+import { TemplateEngine, vite } from "./template-engine.js";
 
 type ResponseConfig = {
   component: string;
@@ -37,12 +37,14 @@ export class Response {
   async render(props: PageObject) {
     const template = await readFile("index.html", "utf8");
     const dataPage = encode(JSON.stringify(props));
+    const isProd = process.env.NODE_ENV == "production";
     const html = TemplateEngine.render(template, {
       component: props.component,
       props: dataPage,
       inertiaHead: "",
-      rootElementId: "root",
-      vite: (path: string) => `/${path}`,
+      rootElementId: "app",
+      isProd,
+      vite: (path: string) => vite(path, isProd),
     });
 
     return html;
