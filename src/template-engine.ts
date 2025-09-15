@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { Vite } from "./vite.js";
 
 type Context = Record<string, any>;
@@ -65,5 +64,5 @@ export function vite(path: string, isProd: boolean) {
   const assetPath = manifest[path];
   if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
 
-  return assetPath;
+  return `/${assetPath}`;
 }
