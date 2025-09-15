@@ -7,15 +7,29 @@ import { encode } from "html-entities";
 type Context = Record<string, any>;
 type DirectiveHandler = (ctx: Context) => string;
 
-export function vite(path: string, isProd: boolean) {
+export function vite(
+  path: string,
+  isProd: boolean
+): { file: string; chunks: string[] } {
   if (!isProd) {
-    return path;
+    return {
+      file: `/${path}`,
+      chunks: [],
+    };
   }
-  const manifest = Vite.getManifest();
-  const assetPath = manifest[path];
-  if (!assetPath) throw new Error(`Entry ${path} not found in manifest`);
 
-  return assetPath.file;
+  const manifest = Vite.getManifest();
+  const asset = manifest[path];
+  if (!asset) throw new Error(`Entry ${path} not found in manifest`);
+
+  const file = `/${asset.file}`;
+  const css = (asset.css || []).map((c: string) => `/${c}`);
+
+  const chunks = css.map(
+    (href: string) => `<link rel="stylesheet" crossorigin href="${href}">`
+  );
+
+  return { file, chunks };
 }
 
 export class TemplateEngine {
@@ -44,7 +58,12 @@ export class TemplateEngine {
       ssr: !!this.serverRenderer,
       rootElementId: "app",
       isProd,
-      vite: (path: string) => vite(path, isProd),
+      chunks: [] as string[],
+      vite: (path: string) => {
+        const res = vite(path, isProd);
+        ctx.chunks.push(...res.chunks);
+        return res.file;
+      },
     };
 
     template = template.replace(/{{\s*([\s\S]+?)\s*}}/g, (_, expr) => {
@@ -78,16 +97,16 @@ TemplateEngine.directive("viteReactRefresh", (ctx) => {
   ].join("\n");
 });
 
-TemplateEngine.directive("vite", (ctx) =>
-  ctx.isProd
-    ? ""
-    : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
-);
-
 TemplateEngine.directive("inertiaHead", (ctx) => ctx.ssrHead || "");
 
 TemplateEngine.directive("inertia", (ctx) =>
   ctx.ssr
     ? ctx.ssrBody
     : `<div id="${ctx.rootElementId}" data-page='${ctx.props}'></div>`
+);
+
+TemplateEngine.directive("vite", (ctx) =>
+  ctx.isProd
+    ? ctx.chunks.join("\n")
+    : `<script type="module" src="${ctx.vite("@vite/client")}"></script>`
 );
