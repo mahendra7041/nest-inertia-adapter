@@ -47,7 +47,7 @@ export class TemplateEngine {
     if (this.serverRenderer) {
       const ssr = await this.serverRenderer.render(page);
       page.ssrBody = ssr.body;
-      page.ssrHead = ssr.head.join("\n");
+      page.ssrHead = ssr.head;
     }
 
     const isProd = process.env.NODE_ENV === "production";

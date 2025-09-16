@@ -1,20 +1,19 @@
 import { encode } from "html-entities";
 import fs from "node:fs";
 import path from "node:path";
+import { PageObject } from "./types.js";
 
-type TemplateContext = {
-  viewProps?: Record<string, any>;
+export type TemplateContext = {
+  viewProps: {
+    [x: string]: any;
+    props: PageObject;
+  };
   page?: Record<string, any>;
   vite?: {
     assetUrl?: (file: string) => string;
     isProd: boolean;
     manifestPath?: string;
     devServer?: string;
-  };
-  inertia?: {
-    ssr?: boolean;
-    ssrBody?: string;
-    ssrHead?: string[];
   };
 };
 
@@ -32,7 +31,7 @@ type ViteManifest = Record<
 export class TemplateEngine2 {
   private manifest: ViteManifest | null = null;
 
-  constructor(private context: TemplateContext = {}) {
+  constructor(private context: TemplateContext) {
     if (context.vite?.isProd && context.vite.manifestPath) {
       const manifestFile = fs.readFileSync(
         path.resolve(context.vite.manifestPath),
@@ -156,16 +155,16 @@ export class TemplateEngine2 {
 
     // Inertia Head
     template = template.replace(/@inertiaHead/g, () => {
-      if (this.context.inertia?.ssr) {
-        return this.context.inertia.ssrHead?.join("\n") as string;
+      if (this.context.viewProps.props.ssrHead) {
+        return this.context.viewProps?.props.ssrHead?.join("\n") as string;
       }
       return "";
     });
 
     // Inertia App
     template = template.replace(/@inertia/g, () => {
-      if (this.context.inertia?.ssr) {
-        return this.context.inertia.ssrBody as string;
+      if (this.context.viewProps.props.ssrBody) {
+        return this.context.viewProps.props.ssrBody as string;
       }
       const pageJson = encode(
         JSON.stringify(this.context.viewProps?.props ?? {})

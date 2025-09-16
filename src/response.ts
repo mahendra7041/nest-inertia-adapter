@@ -11,7 +11,7 @@ import {
   OptionalProp,
 } from "./props.js";
 import { ServerRenderer } from "./server_renderer.js";
-import { TemplateEngine2 } from "./template-engine2.0.js";
+import { TemplateContext, TemplateEngine2 } from "./template-engine2.0.js";
 
 type ResponseConfig = {
   component: string;
@@ -48,7 +48,7 @@ export class Response {
 
   async render(props: PageObject) {
     const template = await readFile(this.rootView, "utf8");
-    const data = {
+    const data: TemplateContext = {
       viewProps: {
         component: this.config.component,
         title: "My App",
@@ -59,10 +59,13 @@ export class Response {
         isProd: this.isProd,
         devServer: "",
       },
-      inertia: {
-        ssr: false,
-      },
     };
+    if (this.serverRenderer) {
+      const ssr = await this.serverRenderer.render(props);
+      props.ssrBody = ssr.body;
+      props.ssrHead = ssr.head;
+    }
+
     const tEngine = new TemplateEngine2(data);
     return tEngine.render(template);
   }

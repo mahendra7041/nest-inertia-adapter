@@ -40,7 +40,7 @@ export interface ResolvedConfig<T extends SharedData = SharedData> {
 }
 
 export interface PageObject<TPageProps extends PageProps = PageProps> {
-  ssrHead?: string;
+  ssrHead?: string[];
   ssrBody?: string;
 
   component: string;

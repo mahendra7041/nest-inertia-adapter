@@ -4,7 +4,6 @@ import { INERTIA_CONFIG } from "./define_config.js";
 import type { MaybePromise, ResolvedConfig } from "./types.js";
 import { Response } from "./response.js";
 import { ServerRenderer } from "./server_renderer.js";
-import { TemplateEngine } from "./template-engine.js";
 @Injectable()
 export class ResponseFactory {
   private shouldClearHistory: boolean;
