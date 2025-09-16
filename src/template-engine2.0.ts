@@ -65,22 +65,21 @@ export class TemplateEngine2 {
 
   private parseArgs(raw: string): string[] {
     try {
-      const normalized = raw.trim();
+      let normalized = raw.trim();
 
-      if (normalized.startsWith("'") || normalized.startsWith('"')) {
-        return [this.interpolate(JSON.parse(normalized))];
+      normalized = normalized.replace(/'/g, '"');
+      normalized = normalized.replace(/\s+/g, " ");
+      if (!normalized.startsWith("[") || !normalized.endsWith("]")) {
+        throw new Error("Only array syntax is supported in @vite");
       }
 
-      if (normalized.startsWith("[")) {
-        const parsed: string[] = JSON.parse(
-          normalized.replace(/(['"])?([a-zA-Z0-9_\-./{} ]+)\1/g, '"$2"')
-        );
-        return parsed.map((f) => this.interpolate(f));
-      }
+      const parsed: string[] = JSON.parse(normalized);
+
+      return parsed.map((f) => this.interpolate(f));
     } catch (e) {
       console.error("Failed to parse @vite args:", raw, e);
+      return [];
     }
-    return [];
   }
 
   private renderViteScripts(files: string[]): string {
