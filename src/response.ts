@@ -10,8 +10,8 @@ import {
   MergeProp,
   OptionalProp,
 } from "./props.js";
-import { TemplateEngine } from "./template-engine.js";
 import { ServerRenderer } from "./server_renderer.js";
+import { TemplateEngine2 } from "./template-engine2.0.js";
 
 type ResponseConfig = {
   component: string;
@@ -25,14 +25,14 @@ type ResponseConfig = {
 };
 
 export class Response {
-  protected request: Request;
-  protected response: ExpressResponse;
-  protected templateEngine: TemplateEngine;
+  private request: Request;
+  private response: ExpressResponse;
+  private isProd: boolean;
   constructor(
     private readonly config: ResponseConfig,
     private readonly serverRenderer?: ServerRenderer
   ) {
-    this.templateEngine = new TemplateEngine(this.serverRenderer);
+    this.isProd = process.env.NODE_ENV === "production";
   }
 
   with(key: string, value: any) {
@@ -47,7 +47,24 @@ export class Response {
   }
 
   async render(props: PageObject) {
-    return await this.templateEngine.render(this.rootView, props);
+    const template = await readFile(this.rootView, "utf8");
+    const data = {
+      viewProps: {
+        component: this.config.component,
+        title: "My App",
+        props,
+      },
+      vite: {
+        assetUrl: (file) => "/" + file,
+        isProd: this.isProd,
+        devServer: "",
+      },
+      inertia: {
+        ssr: false,
+      },
+    };
+    const tEngine = new TemplateEngine2(data);
+    return tEngine.render(template);
   }
 
   async toResponse(request: any, response: any) {
