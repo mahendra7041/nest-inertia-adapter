@@ -1,3 +1,4 @@
+import { encode } from "html-entities";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -166,7 +167,9 @@ export class TemplateEngine2 {
       if (this.context.inertia?.ssr) {
         return this.context.inertia.ssrBody as string;
       }
-      const pageJson = JSON.stringify(this.context.page ?? {});
+      const pageJson = encode(
+        JSON.stringify(this.context.viewProps?.props ?? {})
+      );
       return `<div id="app" data-page='${pageJson}'></div>`;
     });
 
