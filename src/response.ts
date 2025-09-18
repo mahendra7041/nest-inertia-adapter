@@ -12,6 +12,7 @@ import {
 } from "./props.js";
 import { ServerRenderer } from "./server_renderer.js";
 import { TemplateContext, TemplateEngine2 } from "./template-engine2.0.js";
+import path from "path";
 
 type ResponseConfig = {
   component: string;
@@ -22,16 +23,15 @@ type ResponseConfig = {
   version: string | number;
   clearHistory: boolean;
   encryptHistory: boolean;
+  manifestPath: string;
+  serverRenderer?: ServerRenderer;
 };
 
 export class Response {
   private request: Request;
   private response: ExpressResponse;
   private isProd: boolean;
-  constructor(
-    private readonly config: ResponseConfig,
-    private readonly serverRenderer?: ServerRenderer
-  ) {
+  constructor(private readonly config: ResponseConfig) {
     this.isProd = process.env.NODE_ENV === "production";
   }
 
@@ -42,7 +42,10 @@ export class Response {
 
   get rootView() {
     return typeof this.config.rootView == "function"
-      ? this.config.rootView({ request: this.request, response: this.response })
+      ? this.config.rootView({
+          request: this.request,
+          response: this.response,
+        })
       : this.config.rootView;
   }
 
@@ -58,10 +61,11 @@ export class Response {
         assetUrl: (file) => "/" + file,
         isProd: this.isProd,
         devServer: "",
+        manifestPath: path.join(this.config.buildDir, ".vite/manifest.json"),
       },
     };
-    if (this.serverRenderer) {
-      const ssr = await this.serverRenderer.render(props);
+    if (this.config.serverRenderer) {
+      const ssr = await this.config.serverRenderer.render(props);
       props.ssrBody = ssr.body;
       props.ssrHead = ssr.head;
     }

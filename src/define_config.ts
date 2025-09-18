@@ -10,6 +10,7 @@ export async function defineConfig<T extends SharedData>(
 
   return {
     assetsVersion: config.assetsVersion ?? "1",
+    buildDir: "build",
     rootView:
       config.rootView ??
       (await detector.detectIndexEntrypoint("inertia/index.html")),

@@ -4,6 +4,7 @@ import { INERTIA_CONFIG } from "./define_config.js";
 import type { MaybePromise, ResolvedConfig } from "./types.js";
 import { Response } from "./response.js";
 import { ServerRenderer } from "./server_renderer.js";
+import { join } from "path";
 @Injectable()
 export class ResponseFactory {
   private shouldClearHistory: boolean;
@@ -65,17 +66,16 @@ export class ResponseFactory {
     const sharedData = { ...this.sharedData, ...props };
     this.flushShared();
 
-    return new Response(
-      {
-        component,
-        props: sharedData,
-        rootView: this.config.rootView,
-        version: this.config.assetsVersion,
-        clearHistory: this.shouldClearHistory,
-        encryptHistory: this.shouldEncryptHistory,
-      },
-      this.serverRenderer
-    );
+    return new Response({
+      component,
+      props: sharedData,
+      rootView: this.config.rootView,
+      version: this.config.assetsVersion,
+      clearHistory: this.shouldClearHistory,
+      encryptHistory: this.shouldEncryptHistory,
+      manifestPath: join(this.config.buildDir, ".vite/manifest.json"),
+      serverRenderer: this.serverRenderer,
+    });
   }
 
   location(url: string) {
