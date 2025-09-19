@@ -61,7 +61,7 @@ export class Response {
         assetUrl: (file) => "/" + file,
         isProd: this.isProd,
         devServer: "",
-        manifestPath: path.join(this.config.buildDir, ".vite/manifest.json"),
+        manifestPath: this.config.manifestPath,
       },
     };
     if (this.config.serverRenderer) {

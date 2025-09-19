@@ -22,8 +22,12 @@ export class ResponseFactory {
     }
   }
 
-  share(key: string, value: any) {
-    this.sharedData = { ...this.sharedData, [key]: value };
+  share(key: string | Record<string, any>, value?: any) {
+    if (typeof key === "object" && key !== null) {
+      this.sharedData = { ...this.sharedData, ...key };
+    } else if (typeof key === "string" && value !== undefined) {
+      this.sharedData = { ...this.sharedData, [key]: value };
+    }
   }
 
   getShared() {
