@@ -12,7 +12,6 @@ import {
 } from "./props.js";
 import { ServerRenderer } from "./server_renderer.js";
 import { TemplateContext, TemplateEngine2 } from "./template-engine2.0.js";
-import path from "path";
 
 type ResponseConfig = {
   component: string;

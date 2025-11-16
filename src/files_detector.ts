@@ -47,6 +47,11 @@ export class FilesDetector {
     return this.makePath(possiblesLocations, defaultPath);
   }
 
+  async detectManifest(defaultPath: string) {
+    const possiblesLocations = ["./build/.vite/manifest.json"];
+    return this.makePath(possiblesLocations, defaultPath);
+  }
+
   async makePath(possiblesLocations: string[], defaultPath: string) {
     const path = await locatePath(possiblesLocations, {
       cwd: this.appRoot,

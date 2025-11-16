@@ -4,7 +4,6 @@ import { INERTIA_CONFIG } from "./define_config.js";
 import type { MaybePromise, ResolvedConfig } from "./types.js";
 import { Response } from "./response.js";
 import { ServerRenderer } from "./server_renderer.js";
-import { join } from "path";
 @Injectable()
 export class ResponseFactory {
   private shouldClearHistory: boolean;
@@ -77,7 +76,7 @@ export class ResponseFactory {
       version: this.config.assetsVersion,
       clearHistory: this.shouldClearHistory,
       encryptHistory: this.shouldEncryptHistory,
-      manifestPath: join(this.config.buildDir, ".vite/manifest.json"),
+      manifestPath: this.config.manifestPath,
       serverRenderer: this.serverRenderer,
     });
   }

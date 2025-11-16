@@ -24,7 +24,6 @@
     "@tuyau/utils": "^0.0.9",
     "html-entities": "^2.6.0",
     "locate-path": "^7.2.0",
-    "nestjs-cls": "^6.0.1",
     "uuid": "^13.0.0",
     "vite": "^7.1.5"
   },

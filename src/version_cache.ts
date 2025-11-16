@@ -1,40 +1,41 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile } from "fs/promises";
 import type { AssetsVersion } from "./types.js";
 
 export class VersionCache {
   #cachedVersion?: AssetsVersion;
 
-  constructor(protected appRoot: URL, protected assetsVersion?: AssetsVersion) {
+  constructor(
+    private readonly manifestPath: string,
+    private readonly assetsVersion?: AssetsVersion
+  ) {
     this.#cachedVersion = assetsVersion;
   }
 
-  async #getManifestHash(): Promise<AssetsVersion> {
+  private async computeVersionFromManifest(): Promise<AssetsVersion> {
     try {
-      const manifestPath = new URL(
-        "public/assets/.vite/manifest.json",
-        this.appRoot
-      );
-      const manifestFile = await readFile(manifestPath, "utf-8");
+      const manifestFile = await readFile(this.manifestPath, "utf-8");
       this.#cachedVersion = createHash("md5")
         .update(manifestFile)
         .digest("hex");
-
-      return this.#cachedVersion;
     } catch {
+      console.warn(
+        `[nest-inertia-adapter] Manifest file not found at "${this.manifestPath}". Falling back to version "1".`
+      );
       this.#cachedVersion = "1";
+    }
+    return this.#cachedVersion;
+  }
+
+  async getVersion(): Promise<AssetsVersion> {
+    if (this.#cachedVersion) {
       return this.#cachedVersion;
     }
-  }
-
-  async computeVersion() {
-    if (!this.assetsVersion) await this.#getManifestHash();
-    return this;
-  }
-
-  getVersion() {
-    if (!this.#cachedVersion)
-      throw new Error("Version has not been computed yet");
+    if (this.assetsVersion) {
+      this.#cachedVersion = this.assetsVersion;
+      return this.#cachedVersion;
+    }
+    await this.computeVersionFromManifest();
     return this.#cachedVersion;
   }
 

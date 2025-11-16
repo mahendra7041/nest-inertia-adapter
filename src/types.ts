@@ -13,6 +13,7 @@ export interface InertiaConfig<T extends SharedData = SharedData> {
   rootView?: string | ((ctx: unknown) => string);
   entrypoint?: string;
   buildDir?: string;
+  manifestPath?: string;
   assetsVersion?: AssetsVersion;
   sharedData?: T;
   history?: {
@@ -29,6 +30,7 @@ export interface InertiaConfig<T extends SharedData = SharedData> {
 export interface ResolvedConfig<T extends SharedData = SharedData> {
   rootView: string | ((ctx: unknown) => string);
   buildDir: string;
+  manifestPath: string;
   entrypoint?: string;
   assetsVersion: string | number;
   sharedData: T;

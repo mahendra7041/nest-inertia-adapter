@@ -1,9 +1,7 @@
-import { readFileSync } from "node:fs";
 import type { ViteDevServer } from "vite";
 
 export class Vite {
   static viteDevServer: ViteDevServer;
-  static manifest: Record<string, any>;
 
   static async register() {
     const { createServer } = await import("vite");
@@ -13,13 +11,19 @@ export class Vite {
     });
   }
 
-  static getManifest() {
-    if (this.manifest) {
-      return this.manifest;
+  static ViteDevMiddleware() {
+    if (!this.viteDevServer) {
+      Vite.register();
     }
-    this.manifest = JSON.parse(
-      readFileSync("build/.vite/manifest.json", "utf-8")
-    );
-    return this.manifest;
+
+    const isDev = process.env.NODE_ENV !== "production";
+
+    return (req, res, next) => {
+      if (!isDev) {
+        return next();
+      }
+
+      this.viteDevServer.middlewares.handle(req, res, () => next());
+    };
   }
 }
