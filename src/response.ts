@@ -1,5 +1,9 @@
-import type { Request, Response as ExpressResponse } from "express";
-import { PageObject, PageProps } from "./types.js";
+import {
+  GenericRequest,
+  GenericResponse,
+  PageObject,
+  PageProps,
+} from "./types.js";
 import { readFile } from "fs/promises";
 import { InertiaHeaders } from "./headers.js";
 import {
@@ -28,8 +32,8 @@ type ResponseConfig = {
 };
 
 export class Response {
-  private request: Request;
-  private response: ExpressResponse;
+  private request: GenericRequest;
+  private response: GenericResponse;
   private isProd: boolean;
   constructor(private readonly config: ResponseConfig) {
     this.isProd = process.env.NODE_ENV === "production";
@@ -74,7 +78,7 @@ export class Response {
     return tEngine.render(template);
   }
 
-  async toResponse(request: Request, response: ExpressResponse) {
+  async toResponse(request: GenericRequest, response: GenericResponse) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.request = request;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

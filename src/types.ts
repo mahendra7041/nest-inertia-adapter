@@ -9,6 +9,15 @@ export type SharedDatumFactory = (ctx: unknown) => MaybePromise<Data>;
 export type SharedData = Record<string, Data | SharedDatumFactory>;
 export type AssetsVersion = string | number | undefined;
 
+export interface GenericRequest {
+  headers: Record<string, any>;
+  url: string;
+}
+
+export interface GenericResponse {
+  setHeader(name: string, value: string): any;
+}
+
 export interface InertiaConfig<T extends SharedData = SharedData> {
   rootView?: string | ((ctx: unknown) => string);
   entrypoint?: string;

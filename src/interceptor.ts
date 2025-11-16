@@ -7,14 +7,14 @@ import {
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { Response } from "./response.js";
-import type { Response as ExpressResponse, Request } from "express";
+import { GenericRequest, GenericResponse } from "./types.js";
 
 @Injectable()
 export class Interceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const http = context.switchToHttp();
-    const req = http.getRequest<Request>();
-    const res = http.getResponse<ExpressResponse>();
+    const req = http.getRequest<GenericRequest>();
+    const res = http.getResponse<GenericResponse>();
 
     return next.handle().pipe(
       map(async (data) => {
