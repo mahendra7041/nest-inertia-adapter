@@ -26,7 +26,7 @@ export class Inertia implements OnModuleInit {
     return this.factory.render(component, props);
   }
 
-  static share(key: string, value: any) {
+  static share(key: string | Record<string, any>, value?: any) {
     return this.factory.share(key, value);
   }
 
