@@ -86,6 +86,7 @@ export class Response {
     );
     const isInertiaRequest = !!this.request.headers[InertiaHeaders.Inertia];
     if (isInertiaRequest) {
+      this.response.setHeader("Vary", InertiaHeaders.Inertia);
       this.response.setHeader(InertiaHeaders.Inertia, "true");
       return pageObject;
     }
