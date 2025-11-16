@@ -1,10 +1,10 @@
 export const InertiaHeaders = {
-  Inertia: 'X-Inertia',
-  Version: 'X-Inertia-Version',
-  Location: 'X-Inertia-Location',
-  ErrorBag: 'X-Inertia-Error-Bag',
-  PartialOnly: 'X-Inertia-Partial-Data',
-  PartialExcept: 'X-Inertia-Partial-Except',
-  PartialComponent: 'X-Inertia-Partial-Component',
-  Reset: 'X-Inertia-Reset',
+  Inertia: "x-inertia",
+  Version: "x-inertia-version",
+  Location: "x-inertia-location",
+  ErrorBag: "x-inertia-error-bag",
+  PartialOnly: "x-inertia-partial-data",
+  PartialExcept: "x-inertia-partial-except",
+  PartialComponent: "x-inertia-partial-component",
+  Reset: "x-inertia-reset",
 } as const;
