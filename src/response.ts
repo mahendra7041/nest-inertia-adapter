@@ -12,6 +12,7 @@ import {
 } from "./props.js";
 import { ServerRenderer } from "./server_renderer.js";
 import { TemplateContext, TemplateEngine2 } from "./template-engine2.0.js";
+import { IncomingMessage } from "http";
 
 type ResponseConfig = {
   component: string;
@@ -73,7 +74,7 @@ export class Response {
     return tEngine.render(template);
   }
 
-  async toResponse(request: any, response: any) {
+  async toResponse(request: Request, response: ExpressResponse) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.request = request;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -85,6 +86,7 @@ export class Response {
     );
     const isInertiaRequest = !!this.request.headers[InertiaHeaders.Inertia];
     if (isInertiaRequest) {
+      this.response.setHeader(InertiaHeaders.Inertia, "true");
       return pageObject;
     }
 
